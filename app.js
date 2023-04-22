@@ -8,15 +8,24 @@ const app = express();
 
 //Additional Packages
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 
 //Routes
 app.use(express.json());
+app.use(morgan('tiny'));
+app.use(cookieParser(process.env.JWT_SECRET));
 const authRouter = require('./routes/authRoutes');
 
 //Route
 app.get('/', (req, res) => {
     res.send('E-commerce Application');
 })
+
+app.get('/api/v1', (req, res) => {
+    console.log(req.signedCookies);
+    res.send('E-commerce Application With Cookies');
+})
+
 app.use('/api/v1/auth', authRouter);
 
 //Database
@@ -26,8 +35,7 @@ const connectDB = require('./db/connect');
 const notFoundMiddleware  = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
 
-//Configurations
-app.use(morgan('tiny'));
+//Errors
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
