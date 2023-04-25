@@ -9,11 +9,15 @@ const app = express();
 //Additional Packages
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const fileUpload = require('express-fileupload');
 
 //Routes
 app.use(express.json());
 app.use(morgan('tiny'));
 app.use(cookieParser(process.env.JWT_SECRET));
+app.use(express.static('./public'));
+app.use(fileUpload());
+
 const authRouter = require('./routes/authRoutes');
 const userRouter = require('./routes/userRoutes');
 const productRouter = require('./routes/productRoutes')
