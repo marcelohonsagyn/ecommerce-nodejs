@@ -1,5 +1,5 @@
 const User = require('../model/User');
-const { attachCookiesToResponse } = require('../utils');
+const { attachCookiesToResponse, createTokenUser } = require('../utils');
 const { StatusCodes } = require('http-status-codes');
 const { BadRequestError, UnauthenticatedError } = require('../errors');
 
@@ -16,7 +16,7 @@ const register = async (req, res) => {
     const isFirstUser = await User.countDocuments({});
     const role = (isFirstUser === 0) ? 'admin' : 'user';
     const user = await User.create({ email, name, password, role });
-    const tokenUser = { name: user.name, userId: user._id, role: user.role };
+    const tokenUser = createTokenUser(user);
 
     attachCookiesToResponse({ res, user: tokenUser });
 
@@ -41,7 +41,7 @@ const login = async (req, res) => {
         throw new UnauthenticatedError('Please, check your email and password');
     }
 
-    const tokenUser = { name: user.name, userId: user._id, role: user.role };
+    const tokenUser = createTokenUser(user);
     attachCookiesToResponse({res, user: tokenUser}); 
     res.status(StatusCodes.OK).json({user: tokenUser});
 }

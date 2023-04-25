@@ -1,7 +1,8 @@
 const { NotFoundError, BadRequestError, UnauthorizedError, UnauthenticatedError } = require('../errors');
 const { StatusCodes }  =require('http-status-codes');
+const validator = require('validator');
 const User = require('../model/User');
-const { login } = require('./authController');
+const { createTokenUser, attachCookiesToResponse, checkPermissions } = require('../utils');
 
 
 const getAllUsers = async (req, res) => {
@@ -21,6 +22,7 @@ const getSingleUser = async (req, res) => {
     if (!user) {
         throw new NotFoundError(`We cant find a User with the id ${id}`);
     }
+    checkPermissions(re.user, user._id);
     console.log(user);
     res.status(StatusCodes.OK).json(user);
 }
@@ -31,18 +33,25 @@ const showCurrentUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
 
-    const user = User.findOne({_id: req.user._id});
+    const { name, email} = req.body;
+    const _id = req.user.userId;
+
+    if (!name) {
+        throw new BadRequestError('Please, provida a valid name');
+    }
+    if (!email || !validator.isEmail(email)) {
+        throw new BadRequestError('Please, provid a valid email');
+    }
+
+    const user = await User.findOneAndUpdate({_id: _id}, {email, name}, {new: true, runValidators: true});
     if (!user) {
         throw new NotFoundError(`We cant find a user with id ${req.user._id}`);
     }
     
-    user.email = req.user.email;
-    user.name = req.user.name;
-    user.role = req.user.role;
+    const tokenUser = createTokenUser(user);
+    attachCookiesToResponse({res, user: tokenUser});
 
-    User.updateOne({user});
-    
-    res.status(StatusCodes.OK).json({user: user})
+    res.status(StatusCodes.OK).json({user: tokenUser});
 }
 
 const updateUserPassword = async (req, res) => {
