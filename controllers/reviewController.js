@@ -28,7 +28,10 @@ const createReview = async (req, res) => {
 
 const getAllReviews = async (req, res) => {
 
-    const reviews = await Review.find({}).sort({"product": 1, "rating": -1});
+    const reviews = await Review.find({})
+                                .populate({path: 'product', select: 'name company price'})
+                                .populate({path: 'user', select: 'name'})
+                                .sort({"product": 1, "rating": -1});
     if (!reviews) {
         throw new CustomError.NotFoundError('We cant find reviews');
     }
@@ -39,7 +42,9 @@ const getAllReviews = async (req, res) => {
 const getSingleReview = async (req, res) => {
      
     const {id: id} = req.params;
-    const review = await Review.findOne({_id: id});
+    const review = await Review.findOne({_id: id})
+                                .populate({path: 'product', select: 'name company price'})
+                                .populate({path: 'user', select: 'name'});
     if (!review) {
         throw new CustomError.NotFoundError(`We cant find a review with the id ${id}`);
     }
@@ -83,10 +88,20 @@ const deleteReview = async (req, res) => {
     res.status(StatusCodes.OK).json({ msg: `The Review with id ${review._id} was deleted.` });
 }
 
+const getSingleProductReviews = async (req, res) => {
+    const { id: productId } = req.params;
+    const reviews = await Review.find({ product: productId });
+    if (!reviews || reviews.length < 1) {
+        throw new CustomError.NotFoundError(`We cant found reviews for the product with id ${productId}`);
+    }
+    res.status(StatusCodes.OK).json({reviews, count: reviews.length});
+}
+
 module.exports = {
     createReview,
     getAllReviews,
     getSingleReview,
     updateReview,
     deleteReview,
+    getSingleProductReviews,
 }

@@ -6,7 +6,7 @@ const { authenticateUser, authorizePermission } = require('../middleware/authent
 const { create } = require('../model/Product');
 
 router.route('/').get(getAllReviews);
-router.route('/').post(authenticateUser, authorizePermission('admin'), createReview);
+router.route('/').post(authenticateUser, createReview);
 router.route('/:id').delete(authenticateUser, authorizePermission('admin'), deleteReview);
 router.route('/:id').patch(authenticateUser, authorizePermission('admin'), updateReview);
 router.route('/:id').get(getSingleReview);
