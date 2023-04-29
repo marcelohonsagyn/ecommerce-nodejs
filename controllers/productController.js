@@ -56,6 +56,7 @@ const deleteProduct = async (req, res) => {
 }
 
 const uploadImage = async (req, res) => {
+    
     if (!req.files) {
         throw new CustomError.BadRequestError('Please, provide a file to upload.');
     }
