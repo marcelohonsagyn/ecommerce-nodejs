@@ -32,14 +32,14 @@ const reviewRouter = require('./routes/reviewRoutes');
 const ordersRouter = require('./routes/orderRoutes');
 
 //Route
-app.get('/', (req, res) => {
-    res.send('E-commerce Application');
-})
+// app.get('/', (req, res) => {
+//     res.send('E-commerce Application');
+// })
 
-app.get('/api/v1', (req, res) => {
-    console.log(req.signedCookies);
-    res.send('E-commerce Application With Cookies');
-})
+// app.get('/api/v1', (req, res) => {
+//     console.log(req.signedCookies);
+//     res.send('E-commerce Application With Cookies');
+// })
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
